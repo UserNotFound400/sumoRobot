@@ -30,7 +30,9 @@ class DCMotor {
 };
 
 int gatilho = 11, echo = 10, luzEsq = 8, luzDir = 9;
+float sensorDir = A0, sensorEsq = A1;
 float tempo, dist;
+//int estadoSensorEsq, estadoSensorDir;
 bool estadoSensorEsq, estadoSensorDir;
 
 DCMotor Motor1, Motor2; // Criação de dois objetos motores 
@@ -41,34 +43,36 @@ void setup() {
   digitalWrite(gatilho,LOW);
   delayMicroseconds(10);
   pinMode(echo, INPUT);
-  pinMode(luzEsq, INPUT);
-  pinMode(luzDir, INPUT);
+  pinMode(sensorEsq, INPUT);
+  pinMode(sensorDir, INPUT);
 
   Motor1.Pinout(7,6); // Seleção dos pinos que cada motor usará
   Motor2.Pinout(4,5); 
 }
 
 void loop() {
-
-  estadoSensorEsq = digitalRead(luzEsq);
-  estadoSensorDir = digitalRead(luzDir);
-
-/*  if(Ultrassonico() <= 10.00){
-    Motor1.Speed(150); // A velocidade do motor pode variar de 0 a 255, onde 255 é a velocidade máxima.
-    Motor2.Speed(150);
+    
+  /*if(Ultrassonico() <= 10.0){
+    Motor1.Speed(255); // A velocidade do motor pode variar de 0 a 255, onde 255 é a velocidade máxima.
+    Motor2.Speed(255);
     Motor1.Forward(); //Comando para ir para frente
     Motor2.Forward();
   } else {  
     Motor1.Speed(150); // A velocidade do motor pode variar de 0 a 255, onde 255 é a velocidade máxima.
     Motor2.Speed(150);
-    Motor1.Stop(); // Comando para o motor parar
-    Motor2.Stop();
-  }
-*/
+    Motor1.Forward(); // Se ele não estiver numa dist menor igual a 10, ele vai continuar andando, porém numa velocidade reduzida
+    Motor2.Forward();
+  }*/
 
-  if (estadoSensorEsq == 0) { //Detecta branco e para 
-    Motor1.Stop(); // Comando para o motor parar
+  if(lerLuzEsq() == 0){ // Comando para o motor parar
     Motor2.Stop();
+    delay(50);
+    //Motor1.Backward(); //Ele vai dar ré, parar rapidao, virar para direita e voltar ao looping
+    //Motor2.Backward();
+    //delay(50);
+    //Motor1.Forward();
+    //Motor2.Backward();
+    
   } else {
     Motor1.Speed(150); // A velocidade do motor pode variar de 0 a 255, onde 255 é a velocidade máxima.
     Motor2.Speed(150);
@@ -76,19 +80,37 @@ void loop() {
     Motor2.Forward();    
   }
 
-  //girar para direita
-  //Motor1.Forward();
-  //Motor2.Backward();
-  //delay(1000);
+  if(lerLuzDir() == 0){ // Comando para o motor parar
+    Motor1.Stop(); // Comando para o motor parar
+    Motor2.Stop();
+    delay(50);
+    Motor1.Backward(); //Ele vai dar ré, parar rapidao, virar para esquerda e voltar ao looping
+    Motor2.Backward();
+    delay(50);*/
+    Motor1.Backward();
+    Motor2.Forward();
+    
+  } else {
+    Motor1.Speed(150); // A velocidade do motor pode variar de 0 a 255, onde 255 é a velocidade máxima.
+    Motor2.Speed(150);
+    Motor1.Forward();
+    Motor2.Forward(); 
+} 
+
+  /*girar para direita
+  Motor1.Forward();
+  Motor2.Backward();
+  delay(1000);
   
-  //girar para esquerda
-  //Motor1.Backward();
-  //Motor2.Forward();
-  //delay(1000);
+  girar para esquerda
+  Motor1.Backward();
+  Motor2.Forward();
+  delay(1000);
   
-  //Motor1.Backward(); // Comando para o motor ir para trás
-  //Motor2.Backward();
-  //delay(1000);
+  Motor1.Backward(); // Comando para o motor ir para trás
+  Motor2.Backward();
+  delay(1000);
+  */
   
 }
 
@@ -119,7 +141,7 @@ int lerLuzEsq(){
   }
 }
 
-/*int lerLuzDir(){
+int lerLuzDir(){
   if(estadoSensorDir) {
     //leu preto na direita retorna 1
     Serial.println(estadoSensorDir);
@@ -129,4 +151,4 @@ int lerLuzEsq(){
     Serial.println(estadoSensorDir);
     return 0;
   }
-}*/
+}
