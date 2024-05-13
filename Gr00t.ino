@@ -2,38 +2,59 @@ class DCMotor {
   int spd = 150, pin1, pin2;
   
   public:    
-    void Pinout(int in1, int in2){ //Pinout é o método para a declaração dos pinos que vão controlar o objeto motor
+  //Pinout: metodo para a declaração dos pinos que vão controlar o objeto motor
+    void Pinout(int in1, int in2) { 
       pin1 = in1;
       pin2 = in2;
       pinMode(pin1, OUTPUT);
       pinMode(pin2, OUTPUT);
     }   
-    
-    void Speed(int in1){ //Speed é o método que irá ser responsável por salvar a velocidade de atuação do motor
+  //Speed: metodo que irá ser responsável por salvar a velocidade de atuação do motor
+    void Speed(int in1) {
       spd = in1;
     }     
-    
-    void Forward(){ //Forward é o método para fazer o motor girar para frente
+  //Forward: metodo para fazer o motor girar para frente
+    void Forward() {
       analogWrite(pin1, spd);
       digitalWrite(pin2, LOW);
     }   
-    
-    void Backward(){ //Backward é o método para fazer o motor girar para trás
+  //Backward: metodo para fazer o motor girar para trás  
+    void Backward() { 
       digitalWrite(pin1, LOW);
       analogWrite(pin2, spd);
     }
-    
-    void Stop(){ //Stop é o metodo para fazer o motor ficar parado.
+  //Stop: metodo para fazer o motor ficar parado  
+    void Stop() { 
       digitalWrite(pin1, LOW);
       digitalWrite(pin2, LOW);
     }
+  //ToTurn: metodo para fazer o robo girar
+    void ToTurn(String direction, int time) {
+      if(direction == "Esquerda") {
+      //Girar para a esquerda
+        analogWrite(pin1, 0);
+        analogWrite(pin2, spd);
+        delay(time);
+        Stop();
+      } else if(direction == "Direita") {
+      //Girar para a direita
+        analogWrite(pin1, spd);
+        analogWrite(pin2, 0);
+        delay(time);
+        Stop();
+      } else {
+      //Direção inválida
+        Serial.println("Use 'Esquerda' ou 'Direita'");
+      }
+    } 
 };
 
 int gatilho = 11, echo = 10, luzEsq = 8, luzDir = 9;
 float tempo, dist;
 bool estadoSensorEsq, estadoSensorDir;
 
-DCMotor Motor1, Motor2; //Criação de dois objetos motores 
+//Criação de dois objetos motores
+DCMotor Motor1, Motor2;  
 
 void setup() {
   Serial.begin(9600);  
@@ -43,8 +64,8 @@ void setup() {
   pinMode(echo, INPUT);
   pinMode(luzEsq, INPUT);
   pinMode(luzDir, INPUT);
-
-  Motor1.Pinout(7,6); //Seleção dos pinos que cada motor usará
+//Seleção dos pinos que cada motor usará
+  Motor1.Pinout(7,6); 
   Motor2.Pinout(4,5); 
 }
 
@@ -66,7 +87,7 @@ void loop() {
     }
     Motor1.Forward();
     Motor2.Forward();*/
-    if(lerLuzEsq() == 0){ //Comando para o motor parar
+    if(!lerLuzEsq()){ //Comando para o motor parar
     Motor1.Stop();
     Motor2.Stop();
     delay(50);
@@ -78,7 +99,8 @@ void loop() {
   } 
 }
 
-  /*girar para direita
+/*
+  girar para direita
   Motor1.Forward();
   Motor2.Backward();
   delay(1000);
@@ -88,7 +110,8 @@ void loop() {
   Motor2.Forward();
   delay(1000);
   
-  Motor1.Backward(); //Comando para o motor ir para trás
+//Comando para o motor ir para trás
+  Motor1.Backward();
   Motor2.Backward();
   delay(1000);
 */
@@ -98,36 +121,32 @@ float Ultrassonico(){
   delayMicroseconds(10);
   digitalWrite(gatilho, LOW);
 
-  // medir tempo de ida e volta do pulso ultrassônico
+//medir tempo de ida e volta do pulso ultrassônico
   tempo = pulseIn(echo, HIGH);
 
-  // calcular as distâncias em centímetros e polegadas
+//calcular as distâncias em centímetros e polegadas
   dist = (tempo/29.4)/2;
   Serial.println(dist);
 
-  // aguardar um pouquinho antes de começar tudo de novo
+//aguardar um pouquinho antes de começar tudo de novo
   delayMicroseconds(600);
   return dist; 
 }
 
-int lerLuzEsq() {
-  estadoSensorEsq = digitalRead(luzEsq);
-  if(estadoSensorEsq) {
-    Serial.println(1); //Ler Preto
-    return 1;
-  } else {
-    Serial.println(0); //Ler Branco
-    return 0;
-  }
+//Retorna *True* se o sensor detectar *Preto* e *False* se detectar *Branco*
+bool lerLuzEsq() {
+  bool estadoSensorEsq = digitalRead(luzEsq);
+  #ifdef DEBUG
+  Serial.print("Sensor Esquerdo: ");
+  Serial.println(estadoSensorEsq ? "Preto" : "Branco");
+  #endif
+  return estadoSensorEsq;
 }
-
-int lerLuzDir() {
-  estadoSensorDir = digitalRead(luzDir);
-  if(estadoSensorDir) {
-    Serial.println(1); //preto 
-    return 1;
-  } else {
-    Serial.println(0); //branco
-    return 0;
-  }
+bool lerLuzDir() {
+  bool estadoSensorDir = digitalRead(luzDir);
+  #ifdef DEBUG
+  Serial.print("Sensor Direito: ");
+  Serial.println(estadoSensorDir ? "Preto" : "Branco");
+  #endif
+  return estadoSensorDir;
 }
